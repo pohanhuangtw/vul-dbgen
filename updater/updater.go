@@ -324,6 +324,8 @@ func assignMetadata(vuls []*common.Vulnerability, apps []*common.AppModuleVul) (
 				}
 
 				cveMap[key] = meta
+				// Also index by bare CVE so app vulnerabilities can reuse distro metadata (e.g., Ubuntu severity)
+				cveMap[cve.Name] = meta
 			}
 		}
 	}
@@ -439,6 +441,10 @@ func assignMetadata(vuls []*common.Vulnerability, apps []*common.AppModuleVul) (
 				if cvss2.Score == 0 {
 					cvss2 = meta.CVSSv2
 				}
+				// Use Ubuntu/distro severity if app severity is Unknown
+				if app.Severity == common.Unknown {
+					app.Severity = meta.Severity
+				}
 			}
 		}
 
@@ -485,6 +491,8 @@ func fetch(datastore Datastore) (bool, []*common.Vulnerability, []*common.AppMod
 	}
 
 	correctAppAffectedVersion(appVuls)
+
+	// Ubuntu severity mappings will be loaded by the apps fetcher when needed
 
 	vuls, apps := assignMetadata(osVuls, appVuls)
 

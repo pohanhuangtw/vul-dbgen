@@ -124,6 +124,9 @@ func (fetcher *UbuntuFetcher) FetchUpdate() (resp updater.FetcherResponse, err e
 	notes := make(map[string]struct{})
 	for cvePath := range modifiedCVE {
 		// Open the CVE file.
+		if strings.Contains(cvePath, "CVE-2025-47909") {
+			fmt.Println(cvePath)
+		}
 		file, err := os.Open(fetcher.repositoryLocalPath + "/" + cvePath)
 		if err != nil {
 			// This can happen when a file is modified and then moved in another

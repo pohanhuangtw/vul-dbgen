@@ -33,7 +33,7 @@ func usage() {
 	os.Exit(2)
 }
 
-func main() {
+func maiin() {
 	log.SetOutput(os.Stdout)
 	log.SetLevel(log.DebugLevel)
 	log.SetFormatter(&utils.LogFormatter{Module: "DBG"})

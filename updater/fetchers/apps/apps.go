@@ -1,10 +1,7 @@
 package apps
 
 import (
-	"bufio"
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"strings"
 
 	log "github.com/sirupsen/logrus"
@@ -34,34 +31,49 @@ func addAppVulMap(mv *common.AppModuleVul) {
 	vulMap[key] = mv
 }
 
+// loadUbuntuSeverityForGo loads Ubuntu severity mappings for Go vulnerabilities
+// This is a placeholder - the actual mapping will be set by the updater
+func loadUbuntuSeverityForGo() {
+	// This function will be called to prepare for Ubuntu severity mapping
+	// The actual mapping will be set via SetUbuntuSeverityMap when available
+}
+
 func (f *AppFetcher) FetchUpdate() (resp updater.AppFetcherResponse, err error) {
-	cveCalibrationLoad()
+	// cveCalibrationLoad()
 
 	// temporarily disable reading cvedetails site until the feed is available
 	// if err = cvedetailUpdate(); err != nil {
 	// 	return resp, err
 	// }
-	if err = ghsaUpdate(); err != nil {
+	// if err = ghsaUpdate(); err != nil {
+	// 	return resp, err
+	// }
+
+	// Load Ubuntu severity mappings for Go vulnerabilities
+	// This will be populated from the distro vulnerabilities in the updater
+	loadUbuntuSeverityForGo()
+
+	if err = govulnUpdate(); err != nil {
 		return resp, err
 	}
-	if err = nginxUpdate(); err != nil {
-		return resp, err
-	}
-	if err = opensslUpdate(); err != nil {
-		return resp, err
-	}
-	if err = rubyUpdate(); err != nil {
-		return resp, err
-	}
-	if err = k8sUpdate(); err != nil {
-		return resp, err
-	}
-	if err = openshiftUpdate(); err != nil {
-		return resp, err
-	}
-	if err = manualUpdate(); err != nil {
-		return resp, err
-	}
+	// if err = nginxUpdate(); err != nil {
+	// 	return resp, err
+	// }
+	// if err = opensslUpdate(); err != nil {
+	// 	return resp, err
+	// }
+	// if err = rubyUpdate(); err != nil {
+	// 	return resp, err
+	// }
+	// if err = k8sUpdate(); err != nil {
+	// 	return resp, err
+	// }
+	// if err = openshiftUpdate(); err != nil {
+	// 	return resp, err
+	// }
+	// if err = manualUpdate(); err != nil {
+	// 	return resp, err
+	// }
 	for key, mv := range vulMap {
 		//Manually remove some withdrawn CVE entries.
 		if _, ok := withdrawnCVEs[mv.VulName]; ok {
@@ -88,28 +100,28 @@ func (f *AppFetcher) FetchUpdate() (resp updater.AppFetcherResponse, err error) 
 	return resp, err
 }
 
-func cveCalibrationLoad() {
-	dat, err := ioutil.ReadFile("apps_calibration")
-	if err != nil {
-		log.WithFields(log.Fields{"error": err}).Info("open apps_calibration fail")
-		return
-	}
-	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
-	for scanner.Scan() {
-		line := scanner.Text()
-		i := strings.Index(line, ":")
-		if i > 0 {
-			var m common.AppModuleVersion
-			if err := json.Unmarshal([]byte(line[i+1:]), &m); err == nil {
-				if mm, ok := cveCalibrate[line[:i]]; ok {
-					cveCalibrate[line[:i]] = append(mm, m)
-				} else {
-					cveCalibrate[line[:i]] = []common.AppModuleVersion{m}
-				}
-			}
-		}
-	}
-}
+// func cveCalibrationLoad() {
+// 	dat, err := ioutil.ReadFile("apps_calibration")
+// 	if err != nil {
+// 		log.WithFields(log.Fields{"error": err}).Info("open apps_calibration fail")
+// 		return
+// 	}
+// 	scanner := bufio.NewScanner(strings.NewReader(string(dat)))
+// 	for scanner.Scan() {
+// 		line := scanner.Text()
+// 		i := strings.Index(line, ":")
+// 		if i > 0 {
+// 			var m common.AppModuleVersion
+// 			if err := json.Unmarshal([]byte(line[i+1:]), &m); err == nil {
+// 				if mm, ok := cveCalibrate[line[:i]]; ok {
+// 					cveCalibrate[line[:i]] = append(mm, m)
+// 				} else {
+// 					cveCalibrate[line[:i]] = []common.AppModuleVersion{m}
+// 				}
+// 			}
+// 		}
+// 	}
+// }
 
 func (f *AppFetcher) Clean() {
 }
